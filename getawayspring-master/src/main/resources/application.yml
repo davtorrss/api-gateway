@@ -7,19 +7,19 @@ spring:
   cloud:
     gateway:
       routes:
-        # 1. Redirección para Autenticación y Seguridad 
-        - id: ms-auth
+        # Ruta para Autenticación 
+        - id: ms-autenticacion
           uri: http://localhost:8081
           predicates:
             - Path=/api/auth/**
 
-        # 2. Redirección para el microservicio de Dueños
+        # Ruta para Dueños 
         - id: ms-duenos
           uri: http://localhost:8082
           predicates:
             - Path=/api/duenos/**
 
-        # 3. Redirección para el microservicio de Mascotas
+        # Ruta para Mascotas 
         - id: ms-mascotas
           uri: http://localhost:8083
           predicates:
