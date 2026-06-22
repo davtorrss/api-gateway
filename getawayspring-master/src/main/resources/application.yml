@@ -7,7 +7,7 @@ spring:
   cloud:
     gateway:
       routes:
-        # 1. Redirección para Autenticación y Seguridad (En construcción)
+        # 1. Redirección para Autenticación y Seguridad 
         - id: ms-auth
           uri: http://localhost:8081
           predicates:
