@@ -1,0 +1,26 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        # 1. Redirección para Autenticación y Seguridad (En construcción)
+        - id: ms-auth
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/auth/**
+
+        # 2. Redirección para el microservicio de Dueños
+        - id: ms-duenos
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/duenos/**
+
+        # 3. Redirección para el microservicio de Mascotas
+        - id: ms-mascotas
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/mascotas/**
