@@ -27,9 +27,10 @@ Para garantizar la escalabilidad y el desacoplamiento, aplicamos los siguientes 
 7. `ms-[nombre]` (Puerto [X]): [Breve descripción]
 
 **Diego:**
-8. `ms-[nombre]` (Puerto [X]): [Breve descripción]
-9. `ms-[nombre]` (Puerto [X]): [Breve descripción]
-10. `ms-[nombre]` (Puerto [X]): [Breve descripción]
+8. `ms-inventario` - Puerto 8087: Gestión de productos, stock, precio y categoría.
+9. `ms-logistica` - Puerto 8088: Gestión de proveedores y solicitudes de reposición.
+10. `ms-ecommerce` - Puerto 8089: Publicación y consulta de productos web.
+11. `ms-facturacion` - Puerto 9090: Gestión de facturas, cálculo de total y validación de stock.
 
 
 ### Fase 1: Persistencia y Variables de Entorno
@@ -110,11 +111,69 @@ Una vez que todas las consolas muestren el estado `STARTED`, realizar una petici
 
 ---
 
-### 4.3. Parte de Diego
-* **Swagger:** `http://localhost:[PUERTO]/swagger-ui.html`
+### 4.3. Parte de Diego Torres
 
-**A. Pruebas de Integración**
-*(Diego: Pega aquí 2 pantallazos de Postman probando tus rutas mediante el puerto 9091).*
+Microservicios desarrollados:
+- `ms-inventario` - Puerto 8087
+- `ms-logistica` - Puerto 8088
+- `ms-ecommerce` - Puerto 8089
+- `ms-facturacion` - Puerto 9090
 
-**B. Cobertura de Pruebas Unitarias (>80%)**
-*(Diego: Pega aquí tu pantallazo de cobertura de pruebas unitarias).*
+Swagger/OpenAPI:
+- Inventario: `http://localhost:8087/swagger-ui.html`
+- Logística: `http://localhost:8088/swagger-ui.html`
+- Ecommerce: `http://localhost:8089/swagger-ui.html`
+- Facturación: `http://localhost:9090/swagger-ui.html`
+
+#### Arquitectura aplicada
+
+Los microservicios fueron desarrollados con Spring Boot siguiendo el patrón CSR:
+
+- Controller: expone los endpoints REST.
+- Service: contiene la lógica de negocio.
+- Repository: gestiona el acceso a datos mediante JPA.
+- DTOs: permiten transportar información entre capas y entre microservicios.
+- WebClient: permite consumir información remota desde otros microservicios.
+- Swagger/OpenAPI: documenta los endpoints.
+- JUnit, Mockito y MockMvc: se utilizaron para pruebas unitarias.
+- JWT: protege rutas mediante token.
+- API Gateway: centraliza el acceso desde el puerto 9091.
+
+#### Flujo de negocio de los microservicios de Diego
+
+El flujo operativo se apoya principalmente en `ms-inventario`. Primero se gestionan productos y stock. Luego `ms-logistica` permite registrar proveedores y solicitudes de reposición. `ms-ecommerce` publica productos provenientes de inventario en el catálogo web. Finalmente, `ms-facturacion` valida productos y stock antes de registrar una factura.
+
+Rutas principales mediante API Gateway:
+
+| Funcionalidad | Ruta Gateway | Microservicio destino |
+|---|---|---|
+| Listar productos | `/productos` | ms-inventario |
+| Listar proveedores | `/proveedores` | ms-logistica |
+| Listar solicitudes | `/solicitudes-reposicion` | ms-logistica |
+| Listar productos web | `/productos-web` | ms-ecommerce |
+| Listar facturas | `/facturas` | ms-facturacion |
+
+#### Evidencias Postman mediante API Gateway
+![Variables baseUrl y token](docs/img/diego/00-variables-baseUrl-token.png)
+![Authorization Bearer Token](docs/img/diego/00-authorization-bearer-token.png)
+![Login Gateway](docs/img/diego/01-login-gateway-token.png)
+![Productos con token](docs/img/diego/03-productos-con-token.png)
+![Productos sin token bloqueado](docs/img/diego/02-productos-sin-token-bloqueado.png)
+![Proveedores con token](docs/img/diego/04-proveedores-con-token.png)
+![Solicitudes con token](docs/img/diego/05-solicitudes-con-token.png)
+![Productos web con token](docs/img/diego/06-productos-web-con-token.png)
+![Facturas con token](docs/img/diego/07-facturas-con-token.png)
+
+#### Evidencias Swagger/OpenAPI
+
+![Swagger Inventario](docs/img/diego/swagger-inventario.png)
+![Swagger Logística](docs/img/diego/swagger-logistica.png)
+![Swagger Ecommerce](docs/img/diego/swagger-ecommerce.png)
+![Swagger Facturación](docs/img/diego/swagger-facturacion.png)
+
+#### Evidencias de pruebas unitarias
+
+![Tests Inventario](docs/img/diego/tests-inventario.png)
+![Tests Logística](docs/img/diego/tests-logistica.png)
+![Tests Ecommerce](docs/img/diego/tests-ecommerce.png)
+![Tests Facturación](docs/img/diego/tests-facturacion.png)
