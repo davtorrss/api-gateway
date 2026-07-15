@@ -22,9 +22,11 @@ Para garantizar la escalabilidad y el desacoplamiento, aplicamos los siguientes 
 4. `ms-mascotas` (Puerto 8083): Gestión del dominio de pacientes clínicos.
 
 **Adriano:**
-5. `ms-[nombre]` (Puerto [X]): [Breve descripción de qué hace]
-6. `ms-[nombre]` (Puerto [X]): [Breve descripción]
-7. `ms-[nombre]` (Puerto [X]): [Breve descripción]
+5. `ms-agenda` (Puerto 8086): Gestión de citas médicas veterinarias. Valida la existencia de la mascota mediante WebClient antes de registrar una cita.
+
+6. `ms-ficha` (Puerto 8084): Gestión de fichas clínicas. Valida la existencia y estado de la cita mediante WebClient antes de generar una ficha médica.
+
+7. `ms-documento` (Puerto 8085): Gestión de documentos clínicos (recetas, órdenes e informes). Consulta las fichas clínicas mediante WebClient para emitir documentos asociados a una atención.
 
 **Diego:**
 8. `ms-inventario` - Puerto 8087: Gestión de productos, stock, precio y categoría.
@@ -101,15 +103,77 @@ Una vez que todas las consolas muestren el estado `STARTED`, realizar una petici
 ---
 
 ### 4.2. Parte de Adriano
-* **Swagger:** `http://localhost:[PUERTO]/swagger-ui.html`
 
-**A. Pruebas de Integración**
-*(Adriano: Pega aquí 2 pantallazos de Postman probando la creación/búsqueda en tus microservicios a través del puerto 9091 del Gateway).*
+Microservicios desarrollados:
 
-**B. Cobertura de Pruebas Unitarias (>80%)**
-*(Adriano: Pega aquí tu pantallazo demostrando que tus test unitarios superan el 80% de cobertura).*
+- `ms-agenda` - Puerto 8086
+- `ms-ficha` - Puerto 8084
+- `ms-documento` - Puerto 8085
 
----
+Swagger/OpenAPI:
+
+- Agenda: `http://localhost:8086/swagger-ui.html`
+- Ficha Clínica: `http://localhost:8084/swagger-ui.html`
+- Documento Clínico: `http://localhost:8085/swagger-ui.html`
+
+#### Arquitectura aplicada
+
+Los microservicios fueron desarrollados utilizando Spring Boot bajo el patrón CSR (Controller-Service-Repository), separando la lógica de negocio de la capa de acceso a datos.
+
+Cada microservicio utiliza:
+
+- Controller para exponer los endpoints REST.
+- Service para implementar la lógica de negocio.
+- Repository con Spring Data JPA.
+- DTOs para intercambio de información.
+- WebClient para comunicación entre microservicios.
+- JWT para proteger los endpoints.
+- Swagger/OpenAPI para documentación.
+- JUnit, Mockito y MockMvc para pruebas unitarias.
+
+#### Flujo de negocio
+
+El flujo clínico implementado representa el proceso real de atención veterinaria.
+
+1. ms-agenda consulta ms-mascotas para validar que la mascota exista antes de crear una cita.
+
+2. ms-ficha consulta ms-agenda para validar que la cita exista y no esté cancelada antes de registrar una ficha clínica.
+
+3. ms-documento consulta ms-ficha para obtener la información clínica necesaria antes de emitir un documento médico.
+
+Este flujo mantiene independencia entre microservicios y evita inconsistencias en la información mediante comunicación síncrona con WebClient.
+
+#### Rutas principales mediante API Gateway
+
+| Funcionalidad | Ruta Gateway | Microservicio |
+|---|---|---|
+| Gestión de citas | `/api/v1/citas/**` | ms-agenda |
+| Gestión de fichas clínicas | `/api/v1/fichas/**` | ms-ficha |
+| Gestión de documentos | `/api/v1/documentos/**` | ms-documento |
+
+#### Evidencias Postman mediante API Gateway
+
+*(Agregar aquí las capturas de Postman)*
+
+![Login Gateway](docs/img/diego/Adriano/LOGIN-TOKEN-ADRIANO.png)
+![CREAR CITA](docs/img/diego/Adriano/CREAR-CITA.png)
+![LISTAR CITA](docs/img/diego/Adriano/OBTENER-CITA.png)
+![CREAR FICHA CLINICA](docs/img/diego/Adriano/CREAR-FICHA.png)
+![LISTAR FICHAS CLINICAS](docs/img/diego/Adriano/LISTAR-FICHAS.png)
+![CREAR DOCUMENTO](docs/img/diego/Adriano/CREAR-DOCUMENTO.png)
+![OBTENER DOCUMENTOS](docs/img/diego/Adriano/OBTENER-DOCUMENTOS.png)
+
+#### Evidencias Swagger/OpenAPI
+
+![Swagger AGENDA](docs/img/diego/Adriano/SWAGGER-MS-AGENDA.png)
+![Swagger DOCUMENTO](docs/img/diego/Adriano/SWAGGER-MS-DOCUMENTO.png)
+![Swagger FICHA](docs/img/diego/Adriano/SWAGGER-MS-FICHA.png)
+
+#### Evidencias de pruebas unitarias
+
+![Tests AGENDA](docs/img/diego/Adriano/MS-AGENDA.png)
+![Tests DOCUMENTO](docs/img/diego/Adriano/MS-DOCUMENTO.png)
+![Tests FICHA](docs/img/diego/Adriano/MS-FICHA.png)
 
 ### 4.3. Parte de Diego Torres
 
