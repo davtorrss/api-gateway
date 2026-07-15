@@ -153,7 +153,7 @@ Este flujo mantiene independencia entre microservicios y evita inconsistencias e
 
 #### Evidencias Postman mediante API Gateway
 
-*(Agregar aquí las capturas de Postman)*
+
 
 ![Login Gateway](docs/img/diego/Adriano/LOGIN-TOKEN-ADRIANO.png)
 ![CREAR CITA](docs/img/diego/Adriano/CREAR-CITA.png)
